@@ -6,8 +6,9 @@ const Home = () => {
   const [userAcc, setUserAcc] = useState("");
   const [sub, setSub] = useState(1);
   const [sub2, setSub2] = useState(1);
-  const address = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-  console.log(ethers.BigNumber.from("0x2a"));
+  const [result, setResult] = useState("");
+  const address = "0xF8525e0D72361dA8a9E950568358cB174E1B5Baf";
+
   useEffect(() => {
     if (window.ethereum) {
       window.ethereum.on("chainChanged", () => {
@@ -28,44 +29,38 @@ const Home = () => {
       const contract = new ethers.Contract(address, Enroll.abi, signer);
 
       // const data = await contract.show(sub);
-      const data = await contract.select(userAcc, sub);
-
-      console.log(data);
+      const data = await contract.select(userAcc, sub2);
+      contract.on("entered", function (result) {
+        console.log(`Result is ${result}`);
+      });
     }
   };
   const viewEnrollment = async (e) => {
     e.preventDefault();
     await requestAccount();
-    console.log(sub);
-    console.log(userAcc);
 
     if (typeof window.ethereum !== "undefined" && acc === true) {
-      console.log("asdf");
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
       const contract = new ethers.Contract(address, Enroll.abi, signer);
 
       // const data = await contract.show(sub);
-      console.log(sub, "daf");
+
       const data = await contract.show(sub);
 
-      console.log(data._hex);
       const a = parseInt(data._hex, 16);
       console.log(a);
+      setResult(a);
     }
   };
   const show = (e) => {
     setSub(e.target.value);
-    console.log(sub);
   };
   const show2 = (e) => {
     setSub2(e.target.value);
-    console.log(sub2);
   };
   async function requestAccount() {
     if (window.ethereum) {
-      console.log("detected");
-
       try {
         const accounts = await window.ethereum.request({
           method: "eth_requestAccounts",
@@ -80,7 +75,7 @@ const Home = () => {
     }
   }
   return (
-    <div>
+    <div className="d-flex flex-column justify-content-center w-100 h-100">
       <h1>Enroll here</h1>
       <h1>ID - {userAcc}</h1>
       <form onSubmit={submitEnrollment}>
@@ -102,6 +97,7 @@ const Home = () => {
         </select>
         <button type="submit">Submit</button>
       </form>
+      <h1>{result}</h1>
       <button>Connect metamask</button>
     </div>
   );
